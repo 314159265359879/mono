@@ -20,6 +20,7 @@ import { AccountCard } from '@app/ui/components/account/account.card';
 import { AccountActions } from './components/account-actions';
 import { HomeTabs } from './components/home-tabs';
 import { useHomePageState } from './use-home-page-state';
+import { Button } from '@leather.io/ui';
 
 export function Home() {
   const {
@@ -62,6 +63,23 @@ export function Home() {
           <AccountActions />
         </AccountCard>
         <PromoBanner />
+        <br />
+        <div>
+          <Button
+            onClick={() => (window as any).debug.setLeatherDevWalletSoftware()}
+            variant="outline"
+            size="sm"
+          >
+            Reset to software dev 2 wallet
+          </Button>
+          <Button
+            onClick={() => (window as any).debug.setLeatherDevWalletLedger()}
+            variant="outline"
+            size="sm"
+          >
+            Reset to ledger dev 2 wallet
+          </Button>
+        </div>
       </Box>
       {whenPageMode({ full: <FeedbackButton />, popup: null })}
       <HomeTabs>
@@ -77,5 +95,6 @@ export function Home() {
         </ModalBackgroundWrapper>
       </HomeTabs>
     </Stack>
+  );
   );
 }
