@@ -1,6 +1,7 @@
 import { HDKey } from '@scure/bip32';
 import {
   mnemonicToSeed,
+  mnemonicToSeedSync,
   generateMnemonic as scureGenerateMnemonic,
   validateMnemonic,
 } from '@scure/bip39';
@@ -23,6 +24,11 @@ export function generateMnemonic() {
 export async function deriveBip39SeedFromMnemonic(mnemonic: string, passphrase?: string) {
   return mnemonicToSeed(mnemonic, passphrase);
 }
+
+export function deriveBip39SeedFromMnemonicSync(mnemonic: string, passphrase?: string) {
+  return mnemonicToSeedSync(mnemonic, passphrase);
+}
+
 /** @deprecated Inaccurately named fn, use `deriveBip39SeedFromMnemonic` */
 export const deriveBip39MnemonicFromSeed = deriveBip39SeedFromMnemonic;
 
@@ -49,8 +55,8 @@ export const deriveKeychainFromXpub = memoize((xpub: string) => HDKey.fromExtend
  * Gets keychain fingerprint directly from mnemonic. This is useful for
  * referencing a mnemonic safely by an identifier.
  */
-export async function getMnemonicRootKeyFingerprint(mnemonic: string, passphrase?: string) {
-  const keychain = deriveRootBip32Keychain(await deriveBip39SeedFromMnemonic(mnemonic, passphrase));
+export function getMnemonicRootKeyFingerprint(mnemonic: string, passphrase?: string) {
+  const keychain = deriveRootBip32Keychain(deriveBip39SeedFromMnemonicSync(mnemonic, passphrase));
   return toHexString(keychain.fingerprint);
 }
 

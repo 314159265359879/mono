@@ -22,6 +22,8 @@ import {
 } from 'redux-persist';
 import { PersistPartial } from 'redux-persist/es/persistReducer';
 
+import { walletSlice } from '@leather.io/state/wallet';
+
 import { persistConfig } from '@shared/storage/redux-persist';
 
 import { appPermissionsSlice } from './app-permissions/app-permissions.slice';
@@ -45,6 +47,7 @@ export interface RootState {
     bitcoin: ReturnType<typeof bitcoinKeysSlice.reducer>;
     stacks: ReturnType<typeof stacksKeysSlice.reducer>;
   };
+  wallets: ReturnType<typeof walletSlice.reducer>;
   inMemoryKeys: ReturnType<typeof inMemoryKeySlice.reducer>;
   softwareKeys: ReturnType<typeof keySlice.reducer>;
   networks: ReturnType<typeof networksSlice.reducer>;
@@ -62,6 +65,7 @@ const appReducer = combineReducers({
     bitcoin: bitcoinKeysSlice.reducer,
     stacks: stacksKeysSlice.reducer,
   }),
+  wallets: walletSlice.reducer,
   inMemoryKeys: inMemoryKeySlice.reducer,
   softwareKeys: keySlice.reducer,
   ordinals: (state = {}) => state,

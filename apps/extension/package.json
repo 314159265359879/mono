@@ -66,6 +66,7 @@
     "@leather.io/rpc": "workspace:*",
     "@leather.io/services": "workspace:*",
     "@leather.io/stacks": "workspace:*",
+    "@leather.io/state": "workspace:*",
     "@leather.io/tokens": "workspace:*",
     "@leather.io/ui": "workspace:*",
     "@leather.io/utils": "workspace:*",

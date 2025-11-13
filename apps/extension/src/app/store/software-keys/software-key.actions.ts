@@ -1,5 +1,6 @@
 import { AddressVersion } from '@stacks/transactions';
 
+import { getMnemonicRootKeyFingerprint } from '@leather.io/crypto';
 import {
   type BitcoinClient,
   type BnsV2Client,
@@ -7,6 +8,7 @@ import {
   type StacksClient,
   fetchNamesForAddress,
 } from '@leather.io/query';
+import { userAddsWallet } from '@leather.io/state/wallet';
 
 import { decryptMnemonic, encryptMnemonic } from '@shared/crypto/mnemonic-encryption';
 import { logger } from '@shared/logger';
@@ -105,6 +107,19 @@ function setWalletEncryptionPassword(args: {
       // Errors during account restore are non-critical and can fail silently
     }
 
+    // Multi-wallet structure
+    dispatch(
+      userAddsWallet({
+        wallet: {
+          createdOn: new Date().toISOString(),
+          fingerprint: await getMnemonicRootKeyFingerprint(secretKey),
+          type: 'software',
+        },
+        accountKeychains: [],
+      })
+    );
+
+    // Single wallet key slice structure
     dispatch(
       keySlice.actions.createSoftwareWalletComplete({
         type: 'software',

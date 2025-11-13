@@ -179,6 +179,9 @@ importers:
       '@leather.io/stacks':
         specifier: workspace:*
         version: link:../../packages/stacks
+      '@leather.io/state':
+        specifier: workspace:*
+        version: link:../../packages/state
       '@leather.io/tokens':
         specifier: workspace:*
         version: link:../../packages/tokens

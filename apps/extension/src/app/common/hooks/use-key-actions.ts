@@ -2,6 +2,8 @@ import { useMemo } from 'react';
 
 import { generateSecretKey } from '@stacks/wallet-sdk';
 
+import { userAddsWallet, walletSlice } from '@leather.io/state/wallet';
+
 import { logger } from '@shared/logger';
 import { InternalMethods } from '@shared/message-types';
 import { sendMessage } from '@shared/messages';
