@@ -1,26 +1,26 @@
-import { Route } from 'react-router';
-
+import { bytesToHex } from '@stacks/common';
+import { decryptMnemonic as decrypt, encryptMnemonic as encrypt } from '@stacks/encryption';
 import { HomePageSelectors } from '@tests/selectors/home.selectors';
-import { Box, Stack } from 'leather-styles/jsx';
+import { Box, HStack, Stack } from 'leather-styles/jsx';
 
-import { RouteUrls } from '@shared/route-urls';
+import {
+  deriveRootKeychainFromMnemonic,
+  generateMnemonic,
+  getMnemonicRootKeyFingerprint,
+} from '@leather.io/crypto';
+import { userAddsWallet } from '@leather.io/state/wallet';
+import { Button } from '@leather.io/ui';
+import { toHexString } from '@leather.io/utils';
 
 import { formatCurrency } from '@app/common/currency-formatter';
-import { whenPageMode } from '@app/common/utils';
 import { emptyAmountPlaceholder } from '@app/components/balance/constants';
-import { ActivityList } from '@app/features/activity-list/activity-list';
-import { Collectibles } from '@app/features/collectibles/collectibles';
-import { FeedbackButton } from '@app/features/feedback-button/feedback-button';
 import { PromoBanner } from '@app/features/promo-banner/promo-banner';
-import { Assets } from '@app/pages/home/components/assets';
-import { homePageModalRoutes } from '@app/routes/app-routes';
-import { ModalBackgroundWrapper } from '@app/routes/components/modal-background-wrapper';
+import { getWalletSessionKey } from '@app/store/session-restore';
+import { keySlice } from '@app/store/software-keys/software-key.slice';
 import { AccountCard } from '@app/ui/components/account/account.card';
 
 import { AccountActions } from './components/account-actions';
-import { HomeTabs } from './components/home-tabs';
 import { useHomePageState } from './use-home-page-state';
-import { Button } from '@leather.io/ui';
 
 export function Home() {
   const {
@@ -64,7 +64,7 @@ export function Home() {
         </AccountCard>
         <PromoBanner />
         <br />
-        <div>
+        <HStack gap="space.03">
           <Button
             onClick={() => (window as any).debug.setLeatherDevWalletSoftware()}
             variant="outline"
@@ -79,9 +79,57 @@ export function Home() {
           >
             Reset to ledger dev 2 wallet
           </Button>
-        </div>
+          <Button
+            onClick={() => chrome.storage.session.clear().then(() => console.log('cleared'))}
+            variant="outline"
+            size="sm"
+          >
+            clear session storage
+          </Button>
+          <Button
+            onClick={async () => {
+              const mnemonic = generateMnemonic();
+              console.log(mnemonic);
+              const keychain = await deriveRootKeychainFromMnemonic(mnemonic);
+              console.log(keychain);
+              const derivedKey = await getWalletSessionKey();
+
+              if (!derivedKey.success) return;
+              console.log({ derivedKey: derivedKey.data });
+              const encryptedMnemonic = await encrypt(mnemonic, derivedKey.data);
+              console.log({ encryptedMnemonic: bytesToHex(encryptedMnemonic) });
+              const decrypted = await decrypt(encryptedMnemonic, derivedKey.data);
+              console.log({ decrypted });
+
+              dispatch(
+                userAddsWallet({
+                  wallet: {
+                    createdOn: new Date().toISOString(),
+                    fingerprint: getMnemonicRootKeyFingerprint(mnemonic),
+                    type: 'software',
+                  },
+                  accountKeychains: [],
+                })
+              );
+
+              dispatch(
+                keySlice.actions.addNewWallet({
+                  type: 'software',
+                  id: toHexString(keychain.fingerprint),
+                  encryptedSecretKey: bytesToHex(encryptedMnemonic),
+                })
+              );
+            }}
+            variant="outline"
+            size="sm"
+          >
+            Add new mnemonic
+          </Button>
+        </HStack>
+
+        <pre>{JSON.stringify(keys, null, 2)}</pre>
       </Box>
-      {whenPageMode({ full: <FeedbackButton />, popup: null })}
+      {/* {whenPageMode({ full: <FeedbackButton />, popup: null })}
       <HomeTabs>
         <ModalBackgroundWrapper>
           <Route index element={<Assets />} />
@@ -93,8 +141,7 @@ export function Home() {
           </Route>
           {homePageModalRoutes}
         </ModalBackgroundWrapper>
-      </HomeTabs>
+      </HomeTabs> */}
     </Stack>
-  );
   );
 }

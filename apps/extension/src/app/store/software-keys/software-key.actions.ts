@@ -27,7 +27,7 @@ import { initializeIndexZeroAccount } from '../chains/stx-chain.actions';
 import { stxChainSlice } from '../chains/stx-chain.slice';
 import { selectDefaultWalletKey } from '../in-memory-key/in-memory-key.selectors';
 import { inMemoryKeySlice } from '../in-memory-key/in-memory-key.slice';
-import { selectDefaultSoftwareKey } from './software-key.selectors';
+import { selectDefaultSoftwareKey, selectWalletSalt } from './software-key.selectors';
 import { keySlice } from './software-key.slice';
 
 function setWalletEncryptionPassword(args: {
@@ -42,7 +42,7 @@ function setWalletEncryptionPassword(args: {
     const secretKey = selectDefaultWalletKey(getState());
     if (!secretKey) throw new Error('Cannot generate wallet without first having generated a key');
 
-    const { encryptedSecretKey, salt, encryptionKey } = await encryptMnemonic({
+    const { encryptedSecretKey, encryptionKey } = await encryptMnemonic({
       secretKey,
       password,
     });
@@ -112,7 +112,7 @@ function setWalletEncryptionPassword(args: {
       userAddsWallet({
         wallet: {
           createdOn: new Date().toISOString(),
-          fingerprint: await getMnemonicRootKeyFingerprint(secretKey),
+          fingerprint: getMnemonicRootKeyFingerprint(secretKey),
           type: 'software',
         },
         accountKeychains: [],
@@ -124,7 +124,6 @@ function setWalletEncryptionPassword(args: {
       keySlice.actions.createSoftwareWalletComplete({
         type: 'software',
         id: defaultWalletKeyId,
-        salt,
         encryptedSecretKey,
       })
     );
@@ -135,9 +134,14 @@ function setWalletEncryptionPassword(args: {
 function unlockWalletAction(password: string): AppThunk {
   return async (dispatch, getState) => {
     const currentKey = selectDefaultSoftwareKey(getState());
+    const salt = selectWalletSalt(getState());
     if (!currentKey) return;
     if (currentKey.type !== 'software') return;
-    const { secretKey, encryptionKey } = await decryptMnemonic({ password, ...currentKey });
+    const { secretKey, encryptionKey } = await decryptMnemonic({
+      password,
+      encryptedSecretKey: currentKey.encryptedSecretKey,
+      salt,
+    });
     await initalizeWalletSession(encryptionKey);
 
     const rootKey = mnemonicToRootNode(secretKey);

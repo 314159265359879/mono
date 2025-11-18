@@ -10,14 +10,21 @@ import { initialSearchParams } from '@app/common/initial-search-params';
 import { RootState } from '@app/store';
 
 import { selectStacksChain } from '../chains/stx-chain.selectors';
+import { keyAdapter } from './software-key.slice';
 
 function selectKeysSlice(state: RootState) {
-  return state['softwareKeys'];
+  return state.softwareKeys;
 }
 
 export const selectDefaultSoftwareKey = createSelector(
   selectKeysSlice,
   state => state.entities[defaultWalletKeyId]
+);
+
+export const selectWalletSalt = createSelector(
+  selectKeysSlice,
+  // State v3 migrates salt to softwareKeys root
+  state => state.salt ?? (state.entities.default as any)?.salt
 );
 
 export const selectHasSecretKey = createSelector(
@@ -36,3 +43,7 @@ export const selectCurrentAccountIndex = createSelector(selectStacksChain, stxCh
   }
   return stxChain[defaultWalletKeyId].currentAccountIndex;
 });
+
+const selectors = keyAdapter.getSelectors<RootState>(selectKeysSlice);
+
+export const selectSoftwareKeys = selectors.selectAll;

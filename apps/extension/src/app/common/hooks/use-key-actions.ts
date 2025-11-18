@@ -1,8 +1,6 @@
 import { useMemo } from 'react';
 
-import { generateSecretKey } from '@stacks/wallet-sdk';
-
-import { userAddsWallet, walletSlice } from '@leather.io/state/wallet';
+import { generateMnemonic } from '@leather.io/crypto';
 
 import { logger } from '@shared/logger';
 import { InternalMethods } from '@shared/message-types';
@@ -46,7 +44,7 @@ export function useKeyActions() {
           logger.warn('Cannot generate new wallet when wallet already exists');
           return;
         }
-        const secretKey = generateSecretKey(256);
+        const secretKey = generateMnemonic();
         return dispatch(inMemoryKeyActions.generateWalletKey(secretKey));
       },
 
