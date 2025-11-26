@@ -1,3 +1,5 @@
+import { useSelector } from 'react-redux';
+
 import { bytesToHex } from '@stacks/common';
 import { decryptMnemonic as decrypt, encryptMnemonic as encrypt } from '@stacks/encryption';
 import { HomePageSelectors } from '@tests/selectors/home.selectors';
@@ -15,6 +17,7 @@ import { toHexString } from '@leather.io/utils';
 import { formatCurrency } from '@app/common/currency-formatter';
 import { emptyAmountPlaceholder } from '@app/components/balance/constants';
 import { PromoBanner } from '@app/features/promo-banner/promo-banner';
+import { useAppDispatch } from '@app/store';
 import { getWalletSessionKey } from '@app/store/session-restore';
 import { keySlice } from '@app/store/software-keys/software-key.slice';
 import { AccountCard } from '@app/ui/components/account/account.card';
@@ -22,7 +25,82 @@ import { AccountCard } from '@app/ui/components/account/account.card';
 import { AccountActions } from './components/account-actions';
 import { useHomePageState } from './use-home-page-state';
 
-export function Home() {
+export function DebuggerMultiWallet() {
+  const dispatch = useAppDispatch();
+  const keys = useSelector(state => state);
+  return (
+    <Box mt="space.06">
+      <HStack gap="space.03">
+        <Button
+          onClick={() => (window as any).debug.setLeatherDevWalletSoftware()}
+          variant="outline"
+          size="sm"
+        >
+          Reset to software dev 2 wallet
+        </Button>
+        <Button
+          onClick={() => (window as any).debug.setLeatherDevWalletLedger()}
+          variant="outline"
+          size="sm"
+        >
+          Reset to ledger dev 2 wallet
+        </Button>
+        <Button
+          onClick={() => chrome.storage.session.clear().then(() => console.log('cleared'))}
+          variant="outline"
+          size="sm"
+        >
+          clear session storage
+        </Button>
+        <Button
+          onClick={async () => {
+            const mnemonic = generateMnemonic();
+            console.log(mnemonic);
+            const keychain = await deriveRootKeychainFromMnemonic(mnemonic);
+            console.log(keychain);
+            const derivedKey = await getWalletSessionKey();
+
+            console.log({ derivedKey });
+
+            if (!derivedKey.success) return;
+            console.log({ derivedKey: derivedKey.data });
+            const encryptedMnemonic = await encrypt(mnemonic, derivedKey.data);
+            console.log({ encryptedMnemonic: bytesToHex(encryptedMnemonic) });
+            const decrypted = await decrypt(encryptedMnemonic, derivedKey.data);
+            console.log({ decrypted });
+
+            dispatch(
+              userAddsWallet({
+                wallet: {
+                  createdOn: new Date().toISOString(),
+                  fingerprint: getMnemonicRootKeyFingerprint(mnemonic),
+                  type: 'software',
+                },
+                accountKeychains: [],
+              })
+            );
+
+            dispatch(
+              keySlice.actions.addNewWallet({
+                type: 'software',
+                id: toHexString(keychain.fingerprint),
+                encryptedSecretKey: bytesToHex(encryptedMnemonic),
+              })
+            );
+          }}
+          variant="outline"
+          size="sm"
+        >
+          Add new mnemonic
+        </Button>
+      </HStack>
+
+      <pre>{JSON.stringify(keys, null, 2)}</pre>
+    </Box>
+  );
+}
+
+export function HomeV1() {
   const {
     balance,
     isFetchingBnsName,
@@ -64,70 +142,7 @@ export function Home() {
         </AccountCard>
         <PromoBanner />
         <br />
-        <HStack gap="space.03">
-          <Button
-            onClick={() => (window as any).debug.setLeatherDevWalletSoftware()}
-            variant="outline"
-            size="sm"
-          >
-            Reset to software dev 2 wallet
-          </Button>
-          <Button
-            onClick={() => (window as any).debug.setLeatherDevWalletLedger()}
-            variant="outline"
-            size="sm"
-          >
-            Reset to ledger dev 2 wallet
-          </Button>
-          <Button
-            onClick={() => chrome.storage.session.clear().then(() => console.log('cleared'))}
-            variant="outline"
-            size="sm"
-          >
-            clear session storage
-          </Button>
-          <Button
-            onClick={async () => {
-              const mnemonic = generateMnemonic();
-              console.log(mnemonic);
-              const keychain = await deriveRootKeychainFromMnemonic(mnemonic);
-              console.log(keychain);
-              const derivedKey = await getWalletSessionKey();
-
-              if (!derivedKey.success) return;
-              console.log({ derivedKey: derivedKey.data });
-              const encryptedMnemonic = await encrypt(mnemonic, derivedKey.data);
-              console.log({ encryptedMnemonic: bytesToHex(encryptedMnemonic) });
-              const decrypted = await decrypt(encryptedMnemonic, derivedKey.data);
-              console.log({ decrypted });
-
-              dispatch(
-                userAddsWallet({
-                  wallet: {
-                    createdOn: new Date().toISOString(),
-                    fingerprint: getMnemonicRootKeyFingerprint(mnemonic),
-                    type: 'software',
-                  },
-                  accountKeychains: [],
-                })
-              );
-
-              dispatch(
-                keySlice.actions.addNewWallet({
-                  type: 'software',
-                  id: toHexString(keychain.fingerprint),
-                  encryptedSecretKey: bytesToHex(encryptedMnemonic),
-                })
-              );
-            }}
-            variant="outline"
-            size="sm"
-          >
-            Add new mnemonic
-          </Button>
-        </HStack>
-
-        <pre>{JSON.stringify(keys, null, 2)}</pre>
+        <DebuggerMultiWallet />
       </Box>
       {/* {whenPageMode({ full: <FeedbackButton />, popup: null })}
       <HomeTabs>

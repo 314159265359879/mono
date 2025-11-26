@@ -148,7 +148,7 @@ function unlockWalletAction(password: string): AppThunk {
     if (!rootKey.publicKey) throw new Error('Could not derive root key from mnemonic');
     void identifyUser(rootKey.publicKey);
 
-    dispatch(inMemoryKeySlice.actions.setDefaultKey(secretKey));
+    dispatch(inMemoryKeySlice.actions.setWalletKeys({ [defaultWalletKeyId]: secretKey }));
   };
 }
 

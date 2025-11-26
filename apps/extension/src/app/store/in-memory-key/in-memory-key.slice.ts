@@ -30,10 +30,6 @@ export const inMemoryKeySlice = createSlice({
       state.keys[defaultWalletKeyId] = encodeText(action.payload);
     },
 
-    setDefaultKey(state, action: PayloadAction<string>) {
-      state.keys[defaultWalletKeyId] = encodeText(action.payload);
-    },
-
     setWalletKeys(state, action: PayloadAction<Record<string, string>>) {
       state.keys = Object.entries(action.payload).reduce(
         (acc, [keyId, secretKey]) => {

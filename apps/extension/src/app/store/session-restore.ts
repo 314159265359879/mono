@@ -5,10 +5,7 @@ import { logger } from '@shared/logger';
 
 import { store } from '@app/store';
 import { inMemoryKeyActions } from '@app/store/in-memory-key/in-memory-key.actions';
-import {
-  selectDefaultSoftwareKey,
-  selectSoftwareKeys,
-} from '@app/store/software-keys/software-key.selectors';
+import { selectSoftwareKeys } from '@app/store/software-keys/software-key.selectors';
 
 export async function initalizeWalletSession(encryptionKey: string) {
   return chrome.storage.session.set({ encryptionKey });
@@ -31,7 +28,12 @@ export async function restoreWalletSession() {
   try {
     const encryptedKeys = selectSoftwareKeys(store.getState());
 
-    const currentKey = selectDefaultSoftwareKey(store.getState());
+    const allSecretKeys = await Promise.all(
+      encryptedKeys.map(async softwareKey => {
+        const secretKey = await decrypt(softwareKey.encryptedSecretKey, keyResult.data);
+        return [softwareKey.id, secretKey];
+      })
+    );
 
     if (currentKey?.type === 'software') {
       const allSecretKeys = await Promise.all(
