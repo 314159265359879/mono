@@ -32,3 +32,20 @@ export type { Sip9MediaInfo, Sip9SupportedContentType } from './collectibles/sip
 export { getSip9ContentTypeList, getSip9MediaInfo } from './collectibles/sip9-media';
 export type { OnramperMode } from './onramper/types';
 export { getOnramperIframeParams } from './onramper/onramper-params';
+export type {
+  OnPressTokenDetails,
+  SupportedAssetProtocol,
+  SupportedFungibleAssetProtocol,
+  SupportedNonFungibleAssetProtocol,
+  TokenBalance,
+  TokenDetailsProps,
+} from './token/token-types';
+export {
+  isAccountQuotedBtcBalance,
+  isAddressQuotedStxBalance,
+  isRuneBalance,
+  isSip10Balance,
+  isSupportedAssetProtocol,
+  isSupportedFungibleAssetProtocol,
+  isSupportedNonFungibleAssetProtocol,
+} from './token/token-types';
