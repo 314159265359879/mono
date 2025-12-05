@@ -30,6 +30,7 @@ import { usePriceChangePercentage } from '@app/query/common/market-history/marke
 import { useNativeSegwitBtcAccountBalance } from '@app/query/bitcoin/balance/btc-balance.hooks';
 import { useRunesAccountBalance } from '@app/query/bitcoin/runes/runes-balance.query';
 import { useAccountCollectibles } from '@app/query/collectibles/account-collectibles.query';
+import { useActivityByAsset } from '@app/query/activity/activity.query';
 import { useSip10AccountBalance } from '@app/query/stacks/sip10/sip10-balance.hooks';
 import { useStxAccountBalance } from '@app/query/stacks/balance/stx-balance.hooks';
 import { useAccountAddresses } from '@app/services/use-account-addresses';
@@ -116,13 +117,17 @@ function TokenMeta({ layer, price }: TokenMetaProps) {
 
 interface BitcoinTokenDetailsProps {
   accountIndex: number;
+  account: AccountAddresses;
 }
 
-function BitcoinTokenDetails({ accountIndex }: BitcoinTokenDetailsProps) {
+function BitcoinTokenDetails({ accountIndex, account }: BitcoinTokenDetailsProps) {
   const balance = useNativeSegwitBtcAccountBalance(accountIndex);
   const marketData = useMarketData(btcAsset);
   const description = useAssetDescription(btcAsset);
   const priceChange = usePriceChangePercentage(btcAsset);
+  const activityQuery = useActivityByAsset(account, btcAsset, {
+    queryKeyContext: ['token-details'],
+  });
 
   if (balance.state === 'loading' || marketData.state === 'loading') {
     return (
@@ -147,6 +152,7 @@ function BitcoinTokenDetails({ accountIndex }: BitcoinTokenDetailsProps) {
   const price = marketData.value.price;
   const changePercent = priceChange.state === 'success' ? priceChange.value : 0;
   const descriptionText = description.state === 'success' ? description.value.description : '';
+  const activity = activityQuery.data ?? [];
 
   return (
     <Stack px="space.05" py="space.05" gap="space.05">
@@ -185,19 +191,38 @@ function BitcoinTokenDetails({ accountIndex }: BitcoinTokenDetailsProps) {
           {changePercent ? `${changePercent.toFixed(2)}%` : '—'}
         </styled.span>
       </Flex>
+      {activity.length > 0 ? (
+        <Stack border="default" borderRadius="md" p="space.04" gap="space.02">
+          <styled.h2 textStyle="label.02" margin="0">
+            Recent activity
+          </styled.h2>
+          {activity.slice(0, 3).map(item => (
+            <Flex key={item.key} justifyContent="space-between">
+              <styled.span textStyle="caption.02">{item.title}</styled.span>
+              <styled.span textStyle="caption.02" color="ink.text-subdued">
+                {item.caption}
+              </styled.span>
+            </Flex>
+          ))}
+        </Stack>
+      ) : null}
     </Stack>
   );
 }
 
 interface StacksTokenDetailsProps {
   accountIndex: number;
+  account: AccountAddresses;
 }
 
-function StacksTokenDetails({ accountIndex }: StacksTokenDetailsProps) {
+function StacksTokenDetails({ accountIndex, account }: StacksTokenDetailsProps) {
   const balance = useStxAccountBalance(accountIndex);
   const marketData = useMarketData(stxAsset);
   const description = useAssetDescription(stxAsset);
   const priceChange = usePriceChangePercentage(stxAsset);
+  const activityQuery = useActivityByAsset(account, stxAsset, {
+    queryKeyContext: ['token-details'],
+  });
 
   if (balance.state === 'loading' || marketData.state === 'loading') {
     return (
@@ -222,6 +247,7 @@ function StacksTokenDetails({ accountIndex }: StacksTokenDetailsProps) {
   const price = marketData.value.price;
   const changePercent = priceChange.state === 'success' ? priceChange.value : 0;
   const descriptionText = description.state === 'success' ? description.value.description : '';
+  const activity = activityQuery.data ?? [];
 
   return (
     <Stack px="space.05" py="space.05" gap="space.05">
@@ -260,6 +286,21 @@ function StacksTokenDetails({ accountIndex }: StacksTokenDetailsProps) {
           {changePercent ? `${changePercent.toFixed(2)}%` : '—'}
         </styled.span>
       </Flex>
+      {activity.length > 0 ? (
+        <Stack border="default" borderRadius="md" p="space.04" gap="space.02">
+          <styled.h2 textStyle="label.02" margin="0">
+            Recent activity
+          </styled.h2>
+          {activity.slice(0, 3).map(item => (
+            <Flex key={item.key} justifyContent="space-between">
+              <styled.span textStyle="caption.02">{item.title}</styled.span>
+              <styled.span textStyle="caption.02" color="ink.text-subdued">
+                {item.caption}
+              </styled.span>
+            </Flex>
+          ))}
+        </Stack>
+      ) : null}
     </Stack>
   );
 }
@@ -307,12 +348,16 @@ function Sip10TokenDetails({ accountIndex, account, assetId }: Sip10TokenDetails
   const marketData = useMarketData(asset);
   const description = useAssetDescription(asset);
   const priceChange = usePriceChangePercentage(asset);
+  const activityQuery = useActivityByAsset(account, asset, {
+    queryKeyContext: ['token-details'],
+  });
 
   const availableBalance = crypto.availableBalance;
   const fiatBalance = quote.availableBalance;
   const price = marketData.state === 'success' ? marketData.value.price : undefined;
   const changePercent = priceChange.state === 'success' ? priceChange.value : 0;
   const descriptionText = description.state === 'success' ? description.value.description : '';
+  const activity = activityQuery.data ?? [];
 
   return (
     <Stack px="space.05" py="space.05" gap="space.05">
@@ -351,6 +396,21 @@ function Sip10TokenDetails({ accountIndex, account, assetId }: Sip10TokenDetails
           {changePercent ? `${changePercent.toFixed(2)}%` : '—'}
         </styled.span>
       </Flex>
+      {activity.length > 0 ? (
+        <Stack border="default" borderRadius="md" p="space.04" gap="space.02">
+          <styled.h2 textStyle="label.02" margin="0">
+            Recent activity
+          </styled.h2>
+          {activity.slice(0, 3).map(item => (
+            <Flex key={item.key} justifyContent="space-between">
+              <styled.span textStyle="caption.02">{item.title}</styled.span>
+              <styled.span textStyle="caption.02" color="ink.text-subdued">
+                {item.caption}
+              </styled.span>
+            </Flex>
+          ))}
+        </Stack>
+      ) : null}
     </Stack>
   );
 }
