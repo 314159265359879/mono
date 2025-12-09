@@ -30,7 +30,7 @@ import { usePriceChangePercentage } from '@app/query/common/market-history/marke
 import { useNativeSegwitBtcAccountBalance } from '@app/query/bitcoin/balance/btc-balance.hooks';
 import { useRunesAccountBalance } from '@app/query/bitcoin/runes/runes-balance.query';
 import { useAccountCollectibles } from '@app/query/collectibles/account-collectibles.query';
-import { useActivityByAsset } from '@app/query/activity/activity.query';
+import { useActivity, useActivityByAsset } from '@app/query/activity/activity.query';
 import { useSip10AccountBalance } from '@app/query/stacks/sip10/sip10-balance.hooks';
 import { useStxAccountBalance } from '@app/query/stacks/balance/stx-balance.hooks';
 import { useAccountAddresses } from '@app/services/use-account-addresses';
@@ -421,6 +421,60 @@ interface RuneTokenDetailsProps {
   assetId: SerializedCryptoAssetId;
 }
 
+interface RuneTokenDetailsContentProps {
+  asset: any;
+  crypto: { availableBalance: Money };
+  quote: { availableBalance: Money };
+}
+
+function RuneTokenDetailsContent({ asset, crypto, quote }: RuneTokenDetailsContentProps) {
+  const description = useAssetDescription(asset);
+  const priceChange = usePriceChangePercentage(asset);
+
+  const descriptionText = description.state === 'success' ? description.value.description : '';
+  const changePercent = priceChange.state === 'success' ? priceChange.value : 0;
+
+  return (
+    <Stack px="space.05" py="space.05" gap="space.05">
+      <TokenHeader
+        icon={<RunesAvatarIcon />}
+        name={asset.spacedRuneName ?? asset.runeName}
+        symbol={asset.symbol}
+        availableBalance={crypto.availableBalance}
+        fiatBalance={quote.availableBalance}
+      />
+      <TokenMeta layer="Layer 1 · Bitcoin" />
+      {descriptionText ? (
+        <Stack border="default" borderRadius="md" p="space.04">
+          <styled.h2 textStyle="label.02" margin="0">
+            Description
+          </styled.h2>
+          <styled.p textStyle="body.02" margin="0">
+            {descriptionText}
+          </styled.p>
+        </Stack>
+      ) : null}
+      <Flex justifyContent="space-between">
+        <styled.span textStyle="caption.02" color="ink.text-subdued">
+          24h change
+        </styled.span>
+        <styled.span
+          textStyle="caption.02"
+          color={
+            changePercent > 0
+              ? 'green.action-primary-default'
+              : changePercent < 0
+                ? 'red.action-primary-default'
+                : 'ink.text-subdued'
+          }
+        >
+          {changePercent ? `${changePercent.toFixed(2)}%` : '—'}
+        </styled.span>
+      </Flex>
+    </Stack>
+  );
+}
+
 function RuneTokenDetails({ accountIndex, account, assetId }: RuneTokenDetailsProps) {
   const runes = useRunesAccountBalance(accountIndex, { includeHiddenAssets: true });
 
@@ -457,16 +511,7 @@ function RuneTokenDetails({ accountIndex, account, assetId }: RuneTokenDetailsPr
   const { asset, crypto, quote } = entry;
 
   return (
-    <Stack px="space.05" py="space.05" gap="space.05">
-      <TokenHeader
-        icon={<RunesAvatarIcon />}
-        name={asset.spacedRuneName ?? asset.runeName}
-        symbol={asset.symbol}
-        availableBalance={crypto.availableBalance}
-        fiatBalance={quote.availableBalance}
-      />
-      <TokenMeta layer="Layer 1 · Bitcoin" />
-    </Stack>
+    <RuneTokenDetailsContent asset={asset} crypto={crypto} quote={quote} />
   );
 }
 
@@ -531,6 +576,13 @@ function CollectibleDetails({ account, assetId, protocol }: CollectibleDetailsPr
       assertUnreachable(protocol);
   }
 
+  const activityQuery = useActivity(account);
+  const allActivity = activityQuery.data ?? [];
+  const relatedActivity = filterActivityBySerializedAssetId(
+    allActivity,
+    assetId as SerializedCryptoAssetId
+  );
+
   return (
     <Stack px="space.05" py="space.05" gap="space.05">
       <CollectibleTypeIconOverlay protocol={view.protocol}>{media}</CollectibleTypeIconOverlay>
@@ -557,6 +609,21 @@ function CollectibleDetails({ account, assetId, protocol }: CollectibleDetailsPr
           <styled.span textStyle="caption.02">{view.protocol}</styled.span>
         </Flex>
       </Stack>
+      {relatedActivity.length > 0 ? (
+        <Stack border="default" borderRadius="md" p="space.04" gap="space.02">
+          <styled.h2 textStyle="label.02" margin="0">
+            Recent activity
+          </styled.h2>
+          {relatedActivity.slice(0, 3).map(item => (
+            <Flex key={item.key} justifyContent="space-between">
+              <styled.span textStyle="caption.02">{item.title}</styled.span>
+              <styled.span textStyle="caption.02" color="ink.text-subdued">
+                {item.caption}
+              </styled.span>
+            </Flex>
+          ))}
+        </Stack>
+      ) : null}
     </Stack>
   );
 }

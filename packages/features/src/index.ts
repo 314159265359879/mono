@@ -26,6 +26,10 @@ export {
 export type { ActivityStatusIndicatorId, ActivityAvatar, ActivityView } from './activity/types';
 export { formatActivityCaption } from './activity/activity-timestamp';
 export { createActivityView } from './activity/activity-view';
+export {
+  filterActivityByAsset,
+  filterActivityBySerializedAssetId,
+} from './activity/activity-filter';
 export type { CollectibleView } from './collectibles/collectible-view';
 export { createCollectibleView, createCollectibleViews } from './collectibles/collectible-view';
 export type { Sip9MediaInfo, Sip9SupportedContentType } from './collectibles/sip9-media';
