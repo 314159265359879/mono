@@ -40,7 +40,7 @@ import { Box, Button, SheetInstance, Text } from '@leather.io/ui/native';
 
 type SubmissionStatus = 'idle' | 'submitting' | 'success' | 'failure';
 
-const submissionDisplayDuration = 1500;
+const submissionDisplayDuration = 1800;
 const successfulExitTimeout = 1200;
 
 interface SwapReviewScreenProps {
