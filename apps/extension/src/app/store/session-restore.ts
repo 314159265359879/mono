@@ -4,8 +4,9 @@ import z from 'zod';
 import { logger } from '@shared/logger';
 
 import { store } from '@app/store';
-import { inMemoryKeyActions } from '@app/store/in-memory-key/in-memory-key.actions';
 import { selectSoftwareKeys } from '@app/store/software-keys/software-key.selectors';
+
+import { inMemoryKeyActions } from './in-memory-key/in-memory-key.actions';
 
 export async function initalizeWalletSession(encryptionKey: string) {
   return chrome.storage.session.set({ encryptionKey });
@@ -28,27 +29,17 @@ export async function restoreWalletSession() {
   try {
     const encryptedKeys = selectSoftwareKeys(store.getState());
 
-    const allSecretKeys = await Promise.all(
-      encryptedKeys.map(async softwareKey => {
-        const secretKey = await decrypt(softwareKey.encryptedSecretKey, keyResult.data);
-        return [softwareKey.id, secretKey];
-      })
+    const decryptedKeys = await Promise.all(
+      encryptedKeys.map(softwareKey => decrypt(softwareKey.encryptedSecretKey, keyResult.data))
     );
 
-    if (currentKey?.type === 'software') {
-      const allSecretKeys = await Promise.all(
-        encryptedKeys.map(async softwareKey => {
-          const secretKey = await decrypt(softwareKey.encryptedSecretKey, keyResult.data);
-          return [softwareKey.id, secretKey];
-        })
-      );
-
-      console.log({ allSecretKeys });
-
-      const secretKey = await decrypt(currentKey.encryptedSecretKey, keyResult.data);
-      store.dispatch(inMemoryKeyActions.setDefaultKey(secretKey));
-      store.dispatch(inMemoryKeyActions.setWalletKeys(Object.fromEntries(allSecretKeys)));
-    }
+    store.dispatch(
+      inMemoryKeyActions.setWalletKeys(
+        Object.fromEntries(
+          encryptedKeys.map((softwareKey, index) => [softwareKey.id, decryptedKeys[index]])
+        )
+      )
+    );
   } catch {
     logger.error('Failed to decrypt secret key');
   }

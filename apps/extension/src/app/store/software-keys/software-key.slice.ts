@@ -4,12 +4,12 @@ import { defaultWalletKeyId } from '@shared/utils';
 
 import { migrateVaultReducerStoreToNewStateStructure } from '../utils/vault-reducer-migration';
 
-interface KeyConfig {
+interface SoftwareKeyConfig {
   type: 'software';
   id: string;
   encryptedSecretKey: string;
 }
-export const keyAdapter = createEntityAdapter<KeyConfig>();
+export const keyAdapter = createEntityAdapter<SoftwareKeyConfig>();
 
 export const initialKeysState = keyAdapter.getInitialState<{ salt?: string }>({});
 
@@ -17,11 +17,11 @@ export const keySlice = createSlice({
   name: 'softwareKeys',
   initialState: migrateVaultReducerStoreToNewStateStructure(initialKeysState),
   reducers: {
-    createSoftwareWalletComplete(state, action: PayloadAction<KeyConfig>) {
+    createSoftwareWalletComplete(state, action: PayloadAction<SoftwareKeyConfig>) {
       keyAdapter.upsertOne(state, action.payload);
     },
 
-    addNewWallet(state, action: PayloadAction<KeyConfig>) {
+    addNewWallet(state, action: PayloadAction<SoftwareKeyConfig>) {
       keyAdapter.addOne(state, action.payload);
     },
 

@@ -1,7 +1,9 @@
-import { Route } from 'react-router';
+import { Link, Route } from 'react-router';
 
 import { HomePageSelectors } from '@tests/selectors/home.selectors';
 import { Box, Stack } from 'leather-styles/jsx';
+
+import { Button } from '@leather.io/ui';
 
 import { RouteUrls } from '@shared/route-urls';
 
@@ -63,6 +65,13 @@ export function HomeLegacy() {
         <PromoBanner />
       </Box>
       {whenPageMode({ full: <FeedbackButton />, popup: null })}
+      <Box mt="space.04">
+        <Link to={RouteUrls.MultiWalletTest}>
+          <Button variant="outline" size="sm">
+            Multi-Wallet Testing
+          </Button>
+        </Link>
+      </Box>
       <HomeTabsLegacy>
         <ModalBackgroundWrapper>
           <Route index element={<AssetsLegacy />} />

@@ -18,12 +18,17 @@ import { submittedTransactionsActions } from './store/submitted-transactions/sub
 
 const nonProductionMethods = {
   async setLeatherDevWalletLedger() {
+    await chrome.storage.session.clear();
     await chrome.storage.local.set({ 'persist:root': leatherDev2LedgerStore });
-    window.location.reload();
+    window.location.href = '/index.html';
   },
   async setLeatherDevWalletSoftware() {
+    await chrome.storage.session.set({
+      encryptionKey: process.env.DEBUG_DEV_WALLET_ENCRYPTION_KEY,
+    });
+
     await chrome.storage.local.set({ 'persist:root': leatherDev2SoftwareStore });
-    window.location.reload();
+    window.location.href = '/index.html';
   },
 };
 

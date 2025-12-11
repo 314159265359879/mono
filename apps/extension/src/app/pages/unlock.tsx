@@ -5,7 +5,7 @@ import { Content } from '@app/components/layout';
 import { RequestPassword } from '@app/components/request-password';
 import { UnlockHeader } from '@app/features/container/headers/unlock.header';
 
-import { DebuggerMultiWallet } from './home/home-v1';
+import { MultiWalletTest } from './multi-wallet-test/multi-wallet-test';
 
 export function Unlock() {
   const navigate = useNavigate();
@@ -26,9 +26,7 @@ export function Unlock() {
         <RequestPassword onSuccess={returnToPreviousRoute} showForgotPassword />
         <Outlet />
       </Content>
-      <div style={{ width: 'auto' }}>
-        <DebuggerMultiWallet />
-      </div>
+      <MultiWalletTest />
     </>
   );
 }

@@ -29,6 +29,7 @@ import { RetrieveTaprootToNativeSegwit } from '@app/features/retrieve-taproot-to
 import { FundPage } from '@app/pages/fund/fund';
 import { Home } from '@app/pages/home/home';
 import { LegacyAccountAuth } from '@app/pages/legacy-account-auth/legacy-account-auth';
+import { MultiWalletTest } from '@app/pages/multi-wallet-test/multi-wallet-test';
 import { BackUpSecretKeyPage } from '@app/pages/onboarding/back-up-secret-key/back-up-secret-key';
 import { ForgotPassword } from '@app/pages/onboarding/sign-in/forgot-password';
 import { SignIn } from '@app/pages/onboarding/sign-in/sign-in';
@@ -140,6 +141,16 @@ function useAppRoutes() {
 
           {ledgerStacksTxSigningRoutes}
 
+          <Route
+            path={RouteUrls.MultiWalletTest}
+            element={
+              <AccountGate>
+                <MultiWalletTest />
+              </AccountGate>
+            }
+          >
+            {requestBitcoinKeysRoutes}
+          </Route>
           <Route
             path={RouteUrls.AddNetwork}
             element={
