@@ -6,6 +6,10 @@ Leather is the most popular and trusted wallet for apps built on Bitcoin. And no
 
 This app is an [Expo](https://expo.dev/) mobile application. So there are a few prerequisites to have installed on your computer before we can proceed.
 
+## Releasing
+
+See `apps/mobile/RELEASING.md` for the release checklist and the copy/paste prompt to scaffold `apps/mobile/${VERSION}_RELEASE_NOTES.md` in the tone of [`app.leather.io/changelog`](https://app.leather.io/changelog).
+
 ### Prerequisites
 
 - [Node and Pnpm](https://nodejs.org/en/download)
