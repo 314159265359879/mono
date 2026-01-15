@@ -45,3 +45,16 @@ export const marketHistoryQueryOptions = {
   staleTime: 30000,
   gcTime: 30000,
 } satisfies Partial<UseQueryOptions>;
+
+/**
+ * Standard query options for collectibles queries.
+ * Collectibles are relatively stable and can be cached for 5 seconds.
+ */
+export const collectiblesQueryOptions = {
+  refetchOnReconnect: false,
+  refetchOnWindowFocus: false,
+  refetchOnMount: true,
+  retryOnMount: false,
+  staleTime: 5000,
+  gcTime: 5000,
+} satisfies Partial<UseQueryOptions>;
