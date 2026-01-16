@@ -144,6 +144,14 @@
   * devDependencies
     * @leather.io/prettier-config bumped to 0.9.0
 
+## [0.25.2](https://github.com/leather-io/mono/compare/@leather.io/tokens-v0.25.1...@leather.io/tokens-v0.25.2) (2026-01-16)
+
+
+### Bug Fixes
+
+* **mobile:** skip prepare scripts during EAS build ([0ce669f](https://github.com/leather-io/mono/commit/0ce669fc6b22712ee510efbc066d78fa00d08699))
+* **panda-preset:** resolve tokens import during EAS build ([ebabad1](https://github.com/leather-io/mono/commit/ebabad12cbbb1ee2d481e52533d5c9eb30c67f28))
+
 ## [0.25.1](https://github.com/leather-io/mono/compare/@leather.io/tokens-v0.25.0...@leather.io/tokens-v0.25.1) (2025-12-08)
 
 

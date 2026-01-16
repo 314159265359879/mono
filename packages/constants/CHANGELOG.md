@@ -215,6 +215,13 @@
   * devDependencies
     * @leather.io/prettier-config bumped to 0.9.0
 
+## [0.29.1](https://github.com/leather-io/mono/compare/@leather.io/constants-v0.29.0...@leather.io/constants-v0.29.1) (2026-01-16)
+
+
+### Bug Fixes
+
+* integration tests connected to settings ([19b9213](https://github.com/leather-io/mono/commit/19b92135ac7fce715b96441877301efcb4d0ced9))
+
 ## [0.29.0](https://github.com/leather-io/mono/compare/@leather.io/constants-v0.28.5...@leather.io/constants-v0.29.0) (2025-12-18)
 
 
